@@ -1,0 +1,1 @@
+sudo rmmod kvm_intel kvm_amd kvm
