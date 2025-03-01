@@ -13,7 +13,6 @@
 4. Em seguida reinicie o sistema.
 5. Ao iniciar o sistema, **execute** no terminal:
    ```bash
-   sudo dnf install make time perl gcc dkms kernel-devel kernel-headers
    /sbin/vboxconfig
    ```
 6. Novamente, **espere** terminar o vbox build.
