@@ -23,13 +23,10 @@ Bem-vindo ao repositório que centraliza toda a documentação de erros categori
   - **Procedimentos de Resolução:** Passos para solucionar ou contornar o erro.
   - **Anexos:** Logs, prints e outras evidências.
 
-- **`/automacoes`**  
+- **`/Auto`**  
   Contém scripts e ferramentas de automação, cada um com:
   - **README específico:** Instruções de uso detalhadas.
   - **Exemplos de Execução:** Demonstração dos resultados esperados.
-
-- **`/templates`**  
-  Modelos padronizados para documentação e criação de scripts, garantindo consistência nas contribuições.
 
 ---
 
@@ -46,15 +43,6 @@ Bem-vindo ao repositório que centraliza toda a documentação de erros categori
    git commit -m "Adiciona documentação de [nome do erro] ou automação para [descrição]"
    ```
 5. Envie sua branch e abra um Pull Request detalhando as mudanças.
-
----
-
-## ✅ Boas Práticas
-
-- **Consistência:** Utilize os modelos disponíveis para padronizar as contribuições.
-- **Detalhamento:** Forneça informações completas para facilitar a reprodução e o entendimento dos problemas.
-- **Testes:** Valide as automações e scripts antes de submeter sua contribuição.
-- **Colaboração:** Participe ativamente das revisões de Pull Requests para manter a qualidade do repositório.
 
 ---
 
