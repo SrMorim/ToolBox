@@ -1,97 +1,122 @@
 #!/bin/bash
+# workstation.sh - Script para configurar o Fedora para um ambiente fullstack/ciência da computação
 
-# Atualizando o sistema
-sudo dnf update -y && sudo dnf upgrade -y
+# Atualiza o sistema
+sudo dnf update -y
 
-# Instalando pacotes essenciais
-sudo dnf install -y wget curl git vim htop btop preload
+#######################
+# Instalação de Dependências
+#######################
+# Dependências para o VirtualBox e Flatpak
+sudo dnf install -y kernel-devel kernel-headers dkms flatpak
 
-# Instalando navegadores
-sudo dnf install -y google-chrome-stable
+#######################
+# Instalação de Repositórios e Aplicativos
+#######################
 
-# Instalando aplicativos obrigatórios
-sudo dnf install -y code intellij-idea-community virtualbox steam
-
-# Instalando 1Password
-sudo rpm --import https://downloads.1password.com/linux/keys/1password.asc
-echo '[1password]
-name=1Password
-baseurl=https://downloads.1password.com/linux/rpm/stable/$basearch
+# 1. Google Chrome:
+sudo tee /etc/yum.repos.d/google-chrome.repo > /dev/null <<EOF
+[google-chrome]
+name=google-chrome
+baseurl=http://dl.google.com/linux/chrome/rpm/stable/\$basearch
 enabled=1
 gpgcheck=1
-gpgkey=https://downloads.1password.com/linux/keys/1password.asc' | sudo tee /etc/yum.repos.d/1password.repo
+gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub
+EOF
+sudo dnf install -y google-chrome-stable
+
+# 2. 1Password:
+sudo rpm --import https://downloads.1password.com/linux/keys/1password.asc
+sudo tee /etc/yum.repos.d/1password.repo > /dev/null <<EOF
+[1password]
+name=1Password Stable Channel
+baseurl=https://downloads.1password.com/linux/rpm/stable/\$basearch
+enabled=1
+gpgcheck=1
+EOF
 sudo dnf install -y 1password
 
-# Instalando Spotify
-sudo dnf install -y lpf-spotify-client
+# 3. Spotify:
+sudo tee /etc/yum.repos.d/spotify.repo > /dev/null <<EOF
+[spotify]
+name=Spotify Repository
+baseurl=http://negativo17.org/repos/spotify-f24/\$basearch
+enabled=1
+gpgcheck=1
+gpgkey=http://negativo17.org/repos/spotify-f24/repodata/repomd.xml.key
+EOF
+sudo dnf install -y spotify-client
 
-# Instalando Node.js e npm
+# 4. VSCode:
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+sudo tee /etc/yum.repos.d/vscode.repo > /dev/null <<EOF
+[code]
+name=Visual Studio Code
+baseurl=https://packages.microsoft.com/yumrepos/vscode
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+EOF
+sudo dnf install -y code
+
+# 5. IntelliJ IDEA Ultimate:
+# Instala o snapd e depois o IntelliJ via snap
+sudo dnf install snapd -y
+sudo ln -s /var/lib/snapd/snap /snap 2>/dev/null
+sudo snap install intellij-idea-ultimate --classic
+
+# 6. VirtualBox:
+sudo dnf install -y VirtualBox
+
+# 7. Steam:
+sudo dnf install -y steam
+
+# 8. btop:
+sudo dnf install -y btop
+
+# 9. MySQL Workbench:
+sudo dnf install -y mysql-workbench
+
+# 10. Node.js:
 sudo dnf install -y nodejs
 
-# Instalando Java (OpenJDK 17)
-sudo dnf install -y java-17-openjdk-devel maven gradle
+# 11. Postman:
+sudo snap install postman
 
-# Instalando JProfiler
-wget -O jprofiler.rpm https://download-gcdn.ej-technologies.com/jprofiler/jprofiler_linux_amd64.rpm
-sudo dnf install -y ./jprofiler.rpm
-rm -f jprofiler.rpm
+# 12. Obsidian:
+flatpak install flathub md.obsidian.Obsidian -y
 
-# Instalando MySQL
-sudo dnf install -y mysql-server mysql-workbench
-sudo systemctl enable --now mysqld
+#######################
+# Instalação do JDK
+#######################
+# Instala o OpenJDK 11 (ou altere para a versão desejada, como java-17-openjdk-devel)
+sudo dnf install -y java-11-openjdk-devel
 
-# Instalando Docker e Docker Compose
-sudo dnf install -y docker docker-compose
-sudo systemctl enable --now docker
-sudo usermod -aG docker $USER
+#######################
+# Configuração de Atalhos e Personalizações GNOME
+#######################
 
-# Instalando Postman
-wget -O postman.tar.gz https://dl.pstmn.io/download/latest/linux64
-sudo tar -xzf postman.tar.gz -C /opt
-rm -f postman.tar.gz
-sudo ln -s /opt/Postman/Postman /usr/local/bin/postman
+# 1. Atalho para abrir o terminal (ptyxis) com Alt+x
+dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/']"
+dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/name "'Terminal'"
+dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/command "'ptyxis'"
+dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/binding "'<Alt>x>'"
 
-# Instalando drivers NVIDIA e ativando modo performance
-sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
-sudo nvidia-settings -a '[gpu:0]/GPUPowerMizerMode=1'
+# 2. Atalho para abrir a Home Folder com Super+e
+dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/home-folder/']"
+dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/home-folder/name "'Home Folder'"
+dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/home-folder/command "'xdg-open ~'"
+dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/home-folder/binding "'<Super>e'"
 
-# Configuração de Sysctl Tweaks
-sudo tee /etc/sysctl.d/99-custom.conf > /dev/null <<EOL
-vm.swappiness=10
-vm.dirty_ratio=20
-vm.dirty_background_ratio=10
-fs.inotify.max_user_watches=524288
-EOL
-sudo sysctl --system
+# 3. Atalho para switch windows com Alt+Tab (alterna janelas individualmente)
+gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
+# Desabilita o comportamento padrão de switch applications
+gsettings set org.gnome.desktop.wm.keybindings switch-applications "[]"
 
-# Configuração de HugePages para otimizar performance
-sudo tee /etc/default/grub.d/hugepages.cfg > /dev/null <<EOL
-GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT hugepagesz=2M default_hugepagesz=2M hugepages=512"
-EOL
-sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-
-# Configuração de atalhos no GNOME
-# Abrir terminal com Alt+X (ptyxis)
-gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ name 'Abrir Terminal'
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ command 'ptyxis'
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ binding '<Alt>X'
-
-# Abrir Home Folder com Super+E
-gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/']"
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ name 'Abrir Home'
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ command 'nautilus'
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ binding '<Super>E'
-
-# Alternar janelas com Alt+Tab (já padrão, mas reforçando)
-gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Alt>Tab']"
-
-# Configurações do sistema
-# Definir tema dark
+# 4. Define o tema dark (usando Adwaita-dark)
 gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
-gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 
-# Desativar aceleração do mouse
+# 5. Desabilita a aceleração do mouse
 gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'flat'
 
-echo "Setup concluído! Reinicie o sistema para aplicar todas as mudanças."
+echo "Configuração da Workstation concluída! Reinicie sua sessão para que todas as alterações tenham efeito."
