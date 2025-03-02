@@ -1,0 +1,1 @@
+sudo rm /home/morim/.var/app/com.jetbrains.IntelliJ-IDEA-Ultimate/config/JetBrains/IntelliJIdea2024.3/.lock
